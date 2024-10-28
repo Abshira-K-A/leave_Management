@@ -3,6 +3,7 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'employee.dart';
 // import 'hr.dart';
+// import 'manager.dart';
 // import 'register.dart';
 
 // class LoginPage extends StatefulWidget {
@@ -36,42 +37,40 @@
 
 //   Widget _buildLoginForm(BuildContext context) {
 //     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
 //       color: Colors.orangeAccent[700],
 //       width: MediaQuery.of(context).size.width,
-//       height: MediaQuery.of(context).size.height * 0.70,
-//       child: Center(
-//         child: Container(
-//           margin: const EdgeInsets.all(12),
-//           child: Form(
+//       height: MediaQuery.of(context).size.height * 0.7,
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           const Text(
+//             "Login",
+//             style: TextStyle(
+//               fontWeight: FontWeight.bold,
+//               color: Colors.white,
+//               fontSize: 36,
+//             ),
+//           ),
+//           const SizedBox(height: 20),
+//           Form(
 //             key: _formKey,
 //             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.center,
 //               children: [
-//                 const SizedBox(height: 30),
-//                 const Text(
-//                   "Login",
-//                   style: TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     color: Colors.white,
-//                     fontSize: 40,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 20),
 //                 _buildEmailField(),
 //                 const SizedBox(height: 20),
 //                 _buildPasswordField(),
 //                 const SizedBox(height: 20),
 //                 _buildLoginButton(),
-//                 const SizedBox(height: 10),
 //                 if (isLoading)
-//                   const CircularProgressIndicator(
-//                     color: Colors.white,
+//                   const Padding(
+//                     padding: EdgeInsets.symmetric(vertical: 8.0),
+//                     child: CircularProgressIndicator(color: Colors.white),
 //                   ),
 //               ],
 //             ),
 //           ),
-//         ),
+//         ],
 //       ),
 //     );
 //   }
@@ -83,14 +82,7 @@
 //         filled: true,
 //         fillColor: Colors.white,
 //         hintText: 'Email',
-//         contentPadding:
-//             const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 8.0),
-//         focusedBorder: OutlineInputBorder(
-//           borderSide: const BorderSide(color: Colors.white),
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//         enabledBorder: OutlineInputBorder(
-//           borderSide: const BorderSide(color: Colors.white),
+//         border: OutlineInputBorder(
 //           borderRadius: BorderRadius.circular(10),
 //         ),
 //       ),
@@ -126,14 +118,7 @@
 //         filled: true,
 //         fillColor: Colors.white,
 //         hintText: 'Password',
-//         contentPadding:
-//             const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 15.0),
-//         focusedBorder: OutlineInputBorder(
-//           borderSide: const BorderSide(color: Colors.white),
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//         enabledBorder: OutlineInputBorder(
-//           borderSide: const BorderSide(color: Colors.white),
+//         border: OutlineInputBorder(
 //           borderRadius: BorderRadius.circular(10),
 //         ),
 //       ),
@@ -150,20 +135,22 @@
 //   }
 
 //   Widget _buildLoginButton() {
-//     return MaterialButton(
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-//       elevation: 5.0,
-//       height: 40,
+//     return ElevatedButton(
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: Colors.white,
+//         minimumSize: const Size(double.infinity, 50),
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+//         elevation: 5,
+//       ),
 //       onPressed: () {
 //         setState(() {
 //           isLoading = true;
 //         });
 //         signIn(emailController.text, passwordController.text);
 //       },
-//       color: Colors.white,
 //       child: const Text(
 //         "Login",
-//         style: TextStyle(fontSize: 20),
+//         style: TextStyle(fontSize: 20, color: Colors.orangeAccent),
 //       ),
 //     );
 //   }
@@ -172,64 +159,23 @@
 //     return Container(
 //       color: Colors.white,
 //       width: MediaQuery.of(context).size.width,
-//       child: Center(
-//         child: Column(
-//           children: [
-//             const SizedBox(height: 20),
-//             MaterialButton(
-//               shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(20.0)),
-//               elevation: 5.0,
-//               height: 40,
-//               onPressed: () {
-//                 Navigator.pushReplacement(
-//                   context,
-//                   MaterialPageRoute(builder: (context) => const Register()),
-//                 );
-//               },
-//               color: Colors.blue[900],
-//               child: const Text(
-//                 "Register Now",
-//                 style: TextStyle(color: Colors.white, fontSize: 20),
-//               ),
+//       padding: const EdgeInsets.symmetric(vertical: 20),
+//       child: Column(
+//         children: [
+//           TextButton(
+//             onPressed: () {
+//               Navigator.pushReplacement(
+//                 context,
+//                 MaterialPageRoute(builder: (context) => const Register()),
+//               );
+//             },
+//             child: const Text(
+//               "Register Now",
+//               style: TextStyle(color: Colors.blue, fontSize: 18),
 //             ),
-//             const SizedBox(height: 15),
-//             const Text(
-//               "Made by",
-//               style: TextStyle(
-//                 fontWeight: FontWeight.bold,
-//                 fontSize: 40,
-//               ),
-//             ),
-//             const SizedBox(height: 5),
-//             _buildFooterBrand(),
-//           ],
-//         ),
+//           ),
+//         ],
 //       ),
-//     );
-//   }
-
-//   Widget _buildFooterBrand() {
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.center,
-//       children: [
-//         Text(
-//           "WEB",
-//           style: TextStyle(
-//             fontWeight: FontWeight.bold,
-//             fontSize: 30,
-//             color: Colors.blue[900],
-//           ),
-//         ),
-//         Text(
-//           "FUN",
-//           style: TextStyle(
-//             fontWeight: FontWeight.bold,
-//             fontSize: 30,
-//             color: Colors.yellowAccent[400],
-//           ),
-//         ),
-//       ],
 //     );
 //   }
 
@@ -260,13 +206,18 @@
 
 //       if (documentSnapshot.exists) {
 //         String role = documentSnapshot.get('role');
-//         if (role == "Teacher") {
-//           Navigator.pushReplacement(context,
-//               MaterialPageRoute(builder: (context) => const Teacher()));
+//         Widget destination;
+//         if (role == "Employee") {
+//           destination = const Employee();
+//         } else if (role == "HR") {
+//           destination = const HR();
+//         } else if (role == "Manager") {
+//           destination = const Manager();
 //         } else {
-//           Navigator.pushReplacement(context,
-//               MaterialPageRoute(builder: (context) => const Student()));
+//           return;
 //         }
+//         Navigator.pushReplacement(
+//             context, MaterialPageRoute(builder: (context) => destination));
 //       }
 //     }
 //   }
@@ -283,6 +234,7 @@
 //     );
 //   }
 // }
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -309,6 +261,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -322,42 +275,40 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLoginForm(BuildContext context) {
     return Container(
-      color: Colors.orangeAccent[700],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      color: Colors.blue[900],
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.70,
-      child: Center(
-        child: Container(
-          margin: const EdgeInsets.all(12),
-          child: Form(
+      height: MediaQuery.of(context).size.height * 0.7,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Login",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 36,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 30),
-                const Text(
-                  "Login",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 40,
-                  ),
-                ),
-                const SizedBox(height: 20),
                 _buildEmailField(),
                 const SizedBox(height: 20),
                 _buildPasswordField(),
                 const SizedBox(height: 20),
                 _buildLoginButton(),
-                const SizedBox(height: 10),
                 if (isLoading)
-                  const CircularProgressIndicator(
-                    color: Colors.white,
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: CircularProgressIndicator(color: Colors.white),
                   ),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -369,15 +320,9 @@ class _LoginPageState extends State<LoginPage> {
         filled: true,
         fillColor: Colors.white,
         hintText: 'Email',
-        contentPadding:
-            const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 8.0),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white),
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.blue.shade900),
         ),
       ),
       validator: (value) {
@@ -402,6 +347,7 @@ class _LoginPageState extends State<LoginPage> {
         suffixIcon: IconButton(
           icon: Icon(
             _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.blue[900],
           ),
           onPressed: () {
             setState(() {
@@ -412,15 +358,9 @@ class _LoginPageState extends State<LoginPage> {
         filled: true,
         fillColor: Colors.white,
         hintText: 'Password',
-        contentPadding:
-            const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 15.0),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white),
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.blue.shade900),
         ),
       ),
       validator: (value) {
@@ -436,20 +376,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildLoginButton() {
-    return MaterialButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-      elevation: 5.0,
-      height: 40,
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue[900],
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 5,
+      ),
       onPressed: () {
         setState(() {
           isLoading = true;
         });
         signIn(emailController.text, passwordController.text);
       },
-      color: Colors.white,
       child: const Text(
         "Login",
-        style: TextStyle(fontSize: 20),
+        style: TextStyle(fontSize: 20, color: Colors.white),
       ),
     );
   }
@@ -458,64 +400,23 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       color: Colors.white,
       width: MediaQuery.of(context).size.width,
-      child: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            MaterialButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0)),
-              elevation: 5.0,
-              height: 40,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Register()),
-                );
-              },
-              color: Colors.blue[900],
-              child: const Text(
-                "Register Now",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        children: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Register()),
+              );
+            },
+            child: const Text(
+              "Register Now",
+              style: TextStyle(color: Colors.blue, fontSize: 18),
             ),
-            const SizedBox(height: 15),
-            // const Text(
-            //   "Made by",
-            //   style: TextStyle(
-            //     fontWeight: FontWeight.bold,
-            //     fontSize: 40,
-            //   ),
-            // ),
-            // const SizedBox(height: 5),
-            // _buildFooterBrand(),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildFooterBrand() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "WEB",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-            color: Colors.blue[900],
-          ),
-        ),
-        Text(
-          "FUN",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-            color: Colors.yellowAccent[400],
-          ),
-        ),
-      ],
     );
   }
 
@@ -546,16 +447,18 @@ class _LoginPageState extends State<LoginPage> {
 
       if (documentSnapshot.exists) {
         String role = documentSnapshot.get('role');
+        Widget destination;
         if (role == "Employee") {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Employee()));
+          destination = const Employee();
         } else if (role == "HR") {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const HR()));
+          destination = const HR();
         } else if (role == "Manager") {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Manager()));
+          destination = const Manager();
+        } else {
+          return;
         }
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => destination));
       }
     }
   }
