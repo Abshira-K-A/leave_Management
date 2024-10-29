@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'login.dart';
+import 'leave_application.dart';
 
 class Employee extends StatefulWidget {
   const Employee({super.key});
@@ -82,7 +83,8 @@ class _EmployeeState extends State<Employee> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ApplyLeavePage()),
+                  MaterialPageRoute(builder: (context) => LeaveApplicationPage()),
+
                 );
               },
             ),
