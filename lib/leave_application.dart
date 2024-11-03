@@ -174,41 +174,90 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
       ),
     );
   }
+     Future<void> submitLeaveApplication() async {
+  try {
+    // Get HR and Manager emails (you can set these statically or fetch from Firestore)
+    String hrEmail = 'hr@example.com'; // Replace with actual HR email
+    String managerEmail = 'manager@example.com'; // Replace with actual Manager email
 
-  Future<void> submitLeaveApplication() async {
-    try {
-      await FirebaseFirestore.instance.collection('leaveApplications').add({
-        'leaveType': selectedLeaveType,
-        'startDate': startDate != null ? dateFormat.format(startDate!) : null,
-        'endDate': endDate != null ? dateFormat.format(endDate!) : null,
-        'numberOfDays': int.tryParse(daysController.text),
-        'applicationDate': applicationDate != null ? dateFormat.format(applicationDate!) : null,
-        'notes': notesController.text,
-        'email': employeeEmail, // Store the employee email
-      });
+    // Add the leave application to the Firestore
+    await FirebaseFirestore.instance.collection('leave_requests').add({
+      'leaveType': selectedLeaveType,
+      'startDate': startDate != null ? dateFormat.format(startDate!) : null,
+      'endDate': endDate != null ? dateFormat.format(endDate!) : null,
+      'numberOfDays': int.tryParse(daysController.text),
+      'applicationDate': applicationDate != null ? dateFormat.format(applicationDate!) : null,
+      'notes': notesController.text,
+      'email': employeeEmail, // Store the employee email
+      'status': 'pending', // Set initial status as pending
+      'submittedTo': [hrEmail, managerEmail], // Notify HR and Manager
+    });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Leave application submitted successfully!"),
-          backgroundColor: Colors.green,
-        ),
-      );
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Leave application submitted successfully!"),
+        backgroundColor: Colors.green,
+      ),
+    );
 
-      setState(() {
-        selectedLeaveType = null;
-        startDate = null;
-        endDate = null;
-        applicationDate = null;
-      });
-      daysController.clear();
-      notesController.clear();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Failed to submit leave application. Please try again."),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    // Clear fields after submission
+    setState(() {
+      selectedLeaveType = null;
+      startDate = null;
+      endDate = null;
+      applicationDate = null;
+    });
+    daysController.clear();
+    notesController.clear();
+  } catch (e) {
+    // Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Failed to submit leave application. Please try again."),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 }
+}
+
+
+
+//   Future<void> submitLeaveApplication() async {
+//     try {
+//       await FirebaseFirestore.instance.collection('leaveApplications').add({
+//         'leaveType': selectedLeaveType,
+//         'startDate': startDate != null ? dateFormat.format(startDate!) : null,
+//         'endDate': endDate != null ? dateFormat.format(endDate!) : null,
+//         'numberOfDays': int.tryParse(daysController.text),
+//         'applicationDate': applicationDate != null ? dateFormat.format(applicationDate!) : null,
+//         'notes': notesController.text,
+//         'email': employeeEmail, // Store the employee email
+//       });
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text("Leave application submitted successfully!"),
+//           backgroundColor: Colors.green,
+//         ),
+//       );
+
+//       setState(() {
+//         selectedLeaveType = null;
+//         startDate = null;
+//         endDate = null;
+//         applicationDate = null;
+//       });
+//       daysController.clear();
+//       notesController.clear();
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text("Failed to submit leave application. Please try again."),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     }
+//   }
+// }
