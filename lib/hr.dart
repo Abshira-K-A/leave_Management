@@ -109,7 +109,7 @@ class _HRState extends State<HR> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LeaveRequestPage()),
+                      MaterialPageRoute(builder: (context) => LeaveRequestPagehr()),
                     );
                   },
                 );
@@ -174,7 +174,7 @@ class DashboardCard extends StatelessWidget {
   }
 }
 
-class LeaveRequestPage extends StatelessWidget {
+class LeaveRequestPagehr extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

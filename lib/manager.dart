@@ -5,7 +5,8 @@
 // import 'hr.dart';
 // import 'login.dart';
 // import 'employee_Details.dart';
-// import 'leave_request.dart'; // Ensure this import is correct
+// import 'leave_request.dart';
+// import 'leave_approved.dart'; // Import Approved Leave Page
 
 // class Manager extends StatefulWidget {
 //   const Manager({super.key});
@@ -21,6 +22,18 @@
 //       appBar: AppBar(
 //         title: const Text("Manager Dashboard"),
 //         actions: [
+//           // Profile icon button
+//           IconButton(
+//             icon: const Icon(Icons.account_circle),
+//             onPressed: () {
+//               // Navigate to profile page or show a menu
+//               Navigator.push(
+//                 context,
+//                 MaterialPageRoute(builder: (context) => MyProfilePage()),
+//               );
+//             },
+//           ),
+//           // Logout button
 //           IconButton(
 //             onPressed: () {
 //               logout(context);
@@ -28,34 +41,6 @@
 //             icon: const Icon(Icons.logout),
 //           ),
 //         ],
-//       ),
-//       drawer: Drawer(
-//         child: ListView(
-//           padding: EdgeInsets.zero,
-//           children: <Widget>[
-//             const DrawerHeader(
-//               decoration: BoxDecoration(color: Colors.blue),
-//               child: Text(
-//                 'Manager Menu',
-//                 style: TextStyle(color: Colors.white, fontSize: 24),
-//               ),
-//             ),
-//             ListTile(
-//               leading: const Icon(Icons.person),
-//               title: const Text('My Profile'),
-//               onTap: () {
-//                 Navigator.push(context, MaterialPageRoute(builder: (context) => MyProfilePage()));
-//               },
-//             ),
-//             ListTile(
-//               leading: const Icon(Icons.logout),
-//               title: const Text('Logout'),
-//               onTap: () {
-//                 logout(context);
-//               },
-//             ),
-//           ],
-//         ),
 //       ),
 //       body: SingleChildScrollView(
 //         padding: const EdgeInsets.all(16.0),
@@ -87,7 +72,7 @@
 //               },
 //             ),
 //             StreamBuilder(
-//               stream: FirebaseFirestore.instance.collection('leave_requests').snapshots(),
+//               stream: FirebaseFirestore.instance.collection('leave_requests').where('status', isEqualTo: 'pending').snapshots(),
 //               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
 //                 if (snapshot.connectionState == ConnectionState.waiting) {
 //                   return const Center(child: CircularProgressIndicator());
@@ -100,7 +85,30 @@
 //                   onTap: () {
 //                     Navigator.push(
 //                       context,
-//                       MaterialPageRoute(builder: (context) => LeaveRequestPage()), // Ensure LeaveRequestPage is recognized
+//                       MaterialPageRoute(builder: (context) => LeaveApplicationsPage()),
+//                     );
+//                   },
+//                 );
+//               },
+//             ),
+//             StreamBuilder(
+//               stream: FirebaseFirestore.instance
+//                   .collection('leave_requests')
+//                   .where('status', isEqualTo: 'approved')
+//                   .snapshots(),
+//               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+//                 if (snapshot.connectionState == ConnectionState.waiting) {
+//                   return const Center(child: CircularProgressIndicator());
+//                 }
+//                 int approvedRequestCount = snapshot.data?.docs.length ?? 0;
+//                 return DashboardCard(
+//                   icon: Icons.check_circle,
+//                   title: "Approved",
+//                   count: approvedRequestCount,
+//                   onTap: () {
+//                     Navigator.push(
+//                       context,
+//                       MaterialPageRoute(builder: (context) => const ApprovedLeavePage()),
 //                     );
 //                   },
 //                 );
@@ -165,15 +173,16 @@
 //   }
 // }
 
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'hr.dart';
+import 'leave_reject.dart';
 import 'login.dart';
 import 'employee_Details.dart';
-import 'leave_request.dart'; // Ensure this import is correct
+import 'leave_request.dart';
+import 'leave_approved.dart'; // Import Approved Leave Page
 
 class Manager extends StatefulWidget {
   const Manager({super.key});
@@ -189,6 +198,18 @@ class _ManagerState extends State<Manager> {
       appBar: AppBar(
         title: const Text("Manager Dashboard"),
         actions: [
+          // Profile icon button
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              // Navigate to profile page or show a menu
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyProfilePage()),
+              );
+            },
+          ),
+          // Logout button
           IconButton(
             onPressed: () {
               logout(context);
@@ -196,34 +217,6 @@ class _ManagerState extends State<Manager> {
             icon: const Icon(Icons.logout),
           ),
         ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text(
-                'Manager Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('My Profile'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyProfilePage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                logout(context);
-              },
-            ),
-          ],
-        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -255,12 +248,12 @@ class _ManagerState extends State<Manager> {
               },
             ),
             StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('leave_requests').snapshots(),
+              stream: FirebaseFirestore.instance.collection('leave_requests').where('status', isEqualTo: 'pending').snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                int leaveRequestCount = snapshot.data?.docs.where((doc) => doc['status'] == 'pending' && doc['managerApproved'] == false).length ?? 0;
+                int leaveRequestCount = snapshot.data?.docs.length ?? 0;
                 return DashboardCard(
                   icon: Icons.pending_actions,
                   title: "Leave",
@@ -268,7 +261,56 @@ class _ManagerState extends State<Manager> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LeaveRequestPagee()),
+                      MaterialPageRoute(builder: (context) => LeaveApplicationsPage()),
+                    );
+                  },
+                );
+              },
+            ),
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('leave_requests')
+                  .where('status', isEqualTo: 'approved')
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                int approvedRequestCount = snapshot.data?.docs.length ?? 0;
+                return DashboardCard(
+                  icon: Icons.check_circle,
+                  title: "Approved",
+                  count: approvedRequestCount,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ApprovedLeavePage()),
+                    );
+                  },
+                );
+              },
+            ),
+            // New Rejected Leave Dashboard Card
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('leave_requests')
+                  .where('status', isEqualTo: 'rejected')
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                int rejectedRequestCount = snapshot.data?.docs.length ?? 0;
+                return DashboardCard(
+                  icon: Icons.cancel,
+                  title: "Rejected",
+                  count: rejectedRequestCount,
+                  onTap: () {
+                    // Navigate to the page showing rejected leave requests if needed
+                    // You can create a RejectedLeavePage to show details if required
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RejectedLeavePage()),
                     );
                   },
                 );
@@ -332,3 +374,4 @@ class DashboardCard extends StatelessWidget {
     );
   }
 }
+

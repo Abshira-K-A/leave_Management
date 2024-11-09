@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import for FirebaseAuth
@@ -7,12 +8,11 @@ class LeaveApplicationPage extends StatefulWidget {
   @override
   _LeaveApplicationPageState createState() => _LeaveApplicationPageState();
 }
- 
+
 class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController daysController = TextEditingController();
-  final TextEditingController notesController = TextEditingController();
-
+  final TextEditingController employeeIdController = TextEditingController(); // Controller for Employee ID input
   String? employeeEmail; // To store employee email
   String? selectedLeaveType;
   final List<String> leaveTypes = ['Sick Leave', 'LOP', 'Casual Leave'];
@@ -50,7 +50,7 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Leave Application")),
+      appBar: AppBar(title: Text("Leave Application")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -58,6 +58,7 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
             key: _formKey,
             child: Column(
               children: [
+                // Leave Type Dropdown
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Leave Type'),
                   value: selectedLeaveType,
@@ -129,6 +130,14 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                   validator: (value) => value == null || value.isEmpty ? 'Please enter number of days' : null,
                 ),
                 const SizedBox(height: 10),
+                // Employee ID (Text Field)
+                // TextFormField(
+                //   controller: employeeIdController, // Use the controller to capture input
+                //   decoration: const InputDecoration(labelText: 'Employee ID'),
+                //   keyboardType: TextInputType.text,
+                //   validator: (value) => value == null || value.isEmpty ? 'Please enter Employee ID' : null,
+                // ),
+                // const SizedBox(height: 10),
                 // Application Date Picker
                 TextFormField(
                   readOnly: true,
@@ -151,13 +160,6 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
                   },
                   validator: (value) => value == null || value.isEmpty ? 'Please select Application Date' : null,
                 ),
-                const SizedBox(height: 10),
-                // Notes
-                TextFormField(
-                  controller: notesController,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                  maxLines: 3,
-                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -174,90 +176,58 @@ class _LeaveApplicationPageState extends State<LeaveApplicationPage> {
       ),
     );
   }
-     Future<void> submitLeaveApplication() async {
-  try {
-    // Get HR and Manager emails (you can set these statically or fetch from Firestore)
-    String hrEmail = 'hr@example.com'; // Replace with actual HR email
-    String managerEmail = 'manager@example.com'; // Replace with actual Manager email
 
-    // Add the leave application to the Firestore
-    await FirebaseFirestore.instance.collection('leave_requests').add({
-      'leaveType': selectedLeaveType,
-      'startDate': startDate != null ? dateFormat.format(startDate!) : null,
-      'endDate': endDate != null ? dateFormat.format(endDate!) : null,
-      'numberOfDays': int.tryParse(daysController.text),
-      'applicationDate': applicationDate != null ? dateFormat.format(applicationDate!) : null,
-      'notes': notesController.text,
-      'email': employeeEmail, // Store the employee email
-      'status': 'pending', // Set initial status as pending
-      'submittedTo': [hrEmail, managerEmail], // Notify HR and Manager
-    });
+  Future<void> submitLeaveApplication() async {
+    try {
+      // Get the current user's ID (employee ID)
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('User is not authenticated');
+      }
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Leave application submitted successfully!"),
-        backgroundColor: Colors.green,
-      ),
-    );
+      String employeeId = employeeIdController.text.isNotEmpty
+          ? employeeIdController.text
+          : user.uid; // Use the entered Employee ID or fallback to Firebase UID
 
-    // Clear fields after submission
-    setState(() {
-      selectedLeaveType = null;
-      startDate = null;
-      endDate = null;
-      applicationDate = null;
-    });
-    daysController.clear();
-    notesController.clear();
-  } catch (e) {
-    // Show error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Failed to submit leave application. Please try again."),
-        backgroundColor: Colors.red,
-      ),
-    );
+      // Add the leave application to the Firestore 'leaveApplications' collection
+      await FirebaseFirestore.instance.collection('leaveApplications').add({
+        'leaveType': selectedLeaveType,
+        'startDate': startDate != null ? dateFormat.format(startDate!) : null,
+        'endDate': endDate != null ? dateFormat.format(endDate!) : null,
+        'numberOfDays': int.tryParse(daysController.text),
+        'applicationDate': applicationDate != null ? dateFormat.format(applicationDate!) : null,
+        // 'employeeId': employeeId, // Store employee ID
+        'email': employeeEmail, // Store the employee email
+        'status': 'pending', // Set initial status as pending
+        'userid': user.uid, // Store the currently logged-in user's ID
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Leave application submitted successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Clear fields after submission
+      setState(() {
+        selectedLeaveType = null;
+        startDate = null;
+        endDate = null;
+        applicationDate = null;
+      });
+      daysController.clear();
+      employeeIdController.clear(); // Clear the Employee ID field as well
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to submit leave application. Please try again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
-}
 
-
-
-//   Future<void> submitLeaveApplication() async {
-//     try {
-//       await FirebaseFirestore.instance.collection('leaveApplications').add({
-//         'leaveType': selectedLeaveType,
-//         'startDate': startDate != null ? dateFormat.format(startDate!) : null,
-//         'endDate': endDate != null ? dateFormat.format(endDate!) : null,
-//         'numberOfDays': int.tryParse(daysController.text),
-//         'applicationDate': applicationDate != null ? dateFormat.format(applicationDate!) : null,
-//         'notes': notesController.text,
-//         'email': employeeEmail, // Store the employee email
-//       });
-
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text("Leave application submitted successfully!"),
-//           backgroundColor: Colors.green,
-//         ),
-//       );
-
-//       setState(() {
-//         selectedLeaveType = null;
-//         startDate = null;
-//         endDate = null;
-//         applicationDate = null;
-//       });
-//       daysController.clear();
-//       notesController.clear();
-//     } catch (e) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text("Failed to submit leave application. Please try again."),
-//           backgroundColor: Colors.red,
-//         ),
-//       );
-//     }
-//   }
-// }

@@ -35,7 +35,7 @@ class EmployeeDetailsPage extends StatelessWidget {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: ListTile(
-                  title: Text(employee['name'] ?? 'No Name'),
+                  title: Text(employee['firstName'] ?? 'No Name'),
                   subtitle: Text('Email: ${employee['email'] ?? 'No Email'}'),
                   onTap: () {
                     // Optionally, navigate to a detailed view of the employee
@@ -72,7 +72,7 @@ class EmployeeProfileDetail extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Name: ${employee['name'] ?? 'N/A'}',
+              'Name: ${employee['firstName'] ?? 'N/A'}',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
