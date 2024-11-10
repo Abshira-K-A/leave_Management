@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'login.dart';
 import 'employee_Details.dart';
+import 'profile_.dart';
 
 class HR extends StatefulWidget {
   const HR({super.key});
@@ -19,6 +20,17 @@ class _HRState extends State<HR> {
       appBar: AppBar(
         title: const Text("HR Dashboard"),
         actions: [
+          // Profile Icon Button on the right side of the AppBar
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              // Navigate to the HR profile page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EmployeeProfilePage()),
+              );
+            },
+          ),
           IconButton(
             onPressed: () {
               logout(context);
@@ -26,41 +38,6 @@ class _HRState extends State<HR> {
             icon: const Icon(Icons.logout),
           ),
         ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text(
-                'HR Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.money),
-              title: const Text('Pay Components'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PayComponentsPage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('My Profile'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyProfilePage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.report),
-              title: const Text('Reports'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ReportsPage()));
-              },
-            ),
-          ],
-        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

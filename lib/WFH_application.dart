@@ -1,3 +1,5 @@
+
+// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/material.dart';
 
@@ -9,37 +11,69 @@
 // }
 
 // class _WorkFromHomePageState extends State<WorkFromHomePage> {
-//   final _formKey = GlobalKey<FormState>(); // Key to identify the form
-//   final _reasonController = TextEditingController(); // Controller for reason field
-//   final _startDateController = TextEditingController(); // Controller for start date field
-//   final _endDateController = TextEditingController(); // Controller for end date field
+//   final _formKey = GlobalKey<FormState>();
+//   final _reasonController = TextEditingController();
+//   final _startDateController = TextEditingController();
+//   final _endDateController = TextEditingController();
 
-//   // Function to submit the WFH request to Firestore
+//   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+//     DateTime? pickedDate = await showDatePicker(
+//       context: context,
+//       initialDate: DateTime.now(),
+//       firstDate: DateTime(2000),
+//       lastDate: DateTime(2101),
+//     );
+//     if (pickedDate != null) {
+//       setState(() {
+//         controller.text = "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
+//       });
+//     }
+//   }
+
 //   Future<void> _submitRequest() async {
 //     if (_formKey.currentState!.validate()) {
 //       try {
-//         // Add WFH request to Firestore
-//         await FirebaseFirestore.instance.collection('workFromHomeRequests').add({
-//           'reason': _reasonController.text,
-//           'startDate': _startDateController.text,
-//           'endDate': _endDateController.text,
-//           'status': 'pending', // Initially, the request is pending
-//           'timestamp': FieldValue.serverTimestamp(),
-//         });
+//         User? user = FirebaseAuth.instance.currentUser;
+//         String? email = user?.email;
 
-//         // Show success message
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Work from Home request submitted successfully')),
-//         );
+//         if (email != null) {
+//           // Query the 'users' collection to fetch the username of the logged-in user
+//           QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+//               .collection('users')
+//               .where('email', isEqualTo: email)
+//               .get();
 
-//         // Clear the form after submission
-//         _reasonController.clear();
-//         _startDateController.clear();
-//         _endDateController.clear();
+//           if (userSnapshot.docs.isNotEmpty) {
+//             DocumentSnapshot userDoc = userSnapshot.docs.first;
+//             String username = userDoc['username'] ?? 'Unknown User';
+
+//             await FirebaseFirestore.instance.collection('workFromHomeRequests').add({
+//               'email': email,
+//               'username': username,
+//               'reason': _reasonController.text,
+//               'startDate': _startDateController.text,
+//               'endDate': _endDateController.text,
+//               'status': 'pending',
+//               'timestamp': FieldValue.serverTimestamp(),
+//             });
+
+//             ScaffoldMessenger.of(context).showSnackBar(
+//               const SnackBar(content: Text('Work from Home request submitted successfully')),
+//             );
+
+//             // Clear the input fields after submission
+//             _reasonController.clear();
+//             _startDateController.clear();
+//             _endDateController.clear();
+//           } else {
+//             throw 'User document not found';
+//           }
+//         } else {
+//           throw 'User not logged in';
+//         }
 //       } catch (e) {
-//         // Handle error
 //         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Error submitting request')),
+//           SnackBar(content: Text('Error submitting request: $e')),
 //         );
 //       }
 //     }
@@ -53,13 +87,12 @@
 //       ),
 //       body: Padding(
 //         padding: const EdgeInsets.all(16.0),
-//         child: SingleChildScrollView(  // Ensuring form is scrollable
+//         child: SingleChildScrollView(
 //           child: Form(
 //             key: _formKey,
 //             child: Column(
 //               crossAxisAlignment: CrossAxisAlignment.start,
 //               children: [
-//                 // Reason for Work from Home
 //                 TextFormField(
 //                   controller: _reasonController,
 //                   decoration: const InputDecoration(
@@ -74,15 +107,16 @@
 //                   },
 //                 ),
 //                 const SizedBox(height: 16),
-
-//                 // Start Date for WFH
 //                 TextFormField(
 //                   controller: _startDateController,
 //                   decoration: const InputDecoration(
-//                     labelText: 'Start Date (e.g., 01-01-2024)',
+//                     labelText: 'Start Date',
 //                     border: OutlineInputBorder(),
 //                   ),
-//                   keyboardType: TextInputType.datetime,
+//                   readOnly: true,
+//                   onTap: () {
+//                     _selectDate(context, _startDateController);
+//                   },
 //                   validator: (value) {
 //                     if (value == null || value.isEmpty) {
 //                       return 'Please enter the start date';
@@ -91,15 +125,16 @@
 //                   },
 //                 ),
 //                 const SizedBox(height: 16),
-
-//                 // End Date for WFH
 //                 TextFormField(
 //                   controller: _endDateController,
 //                   decoration: const InputDecoration(
-//                     labelText: 'End Date (e.g., 01-02-2024)',
+//                     labelText: 'End Date',
 //                     border: OutlineInputBorder(),
 //                   ),
-//                   keyboardType: TextInputType.datetime,
+//                   readOnly: true,
+//                   onTap: () {
+//                     _selectDate(context, _endDateController);
+//                   },
 //                   validator: (value) {
 //                     if (value == null || value.isEmpty) {
 //                       return 'Please enter the end date';
@@ -108,8 +143,6 @@
 //                   },
 //                 ),
 //                 const SizedBox(height: 24),
-
-//                 // Submit button
 //                 ElevatedButton(
 //                   onPressed: _submitRequest,
 //                   child: const Text('Submit Request'),
@@ -123,260 +156,7 @@
 //   }
 // }
 
-
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-
-// class WorkFromHomePage extends StatefulWidget {
-//   const WorkFromHomePage({super.key});
-
-//   @override
-//   _WorkFromHomePageState createState() => _WorkFromHomePageState();
-// }
-
-// class _WorkFromHomePageState extends State<WorkFromHomePage> {
-//   final _formKey = GlobalKey<FormState>(); // Key to identify the form
-//   final _reasonController = TextEditingController(); // Controller for reason field
-//   final _startDateController = TextEditingController(); // Controller for start date field
-//   final _endDateController = TextEditingController(); // Controller for end date field
-
-//   // Function to submit the WFH request to Firestore
-//   Future<void> _submitRequest() async {
-//     if (_formKey.currentState!.validate()) {
-//       try {
-//         // Add WFH request to Firestore
-//         await FirebaseFirestore.instance.collection('workFromHomeRequests').add({
-//           'reason': _reasonController.text,
-//           'startDate': _startDateController.text,
-//           'endDate': _endDateController.text,
-//           'status': 'pending', // Initially, the request is pending
-//           'timestamp': FieldValue.serverTimestamp(),
-//         });
-
-//         // Show success message
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Work from Home request submitted successfully')),
-//         );
-
-//         // Clear the form after submission
-//         _reasonController.clear();
-//         _startDateController.clear();
-//         _endDateController.clear();
-//       } catch (e) {
-//         // Handle error
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Error submitting request')),
-//         );
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Work from Home Request"),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: SingleChildScrollView(  // Ensuring form is scrollable
-//           child: Form(
-//             key: _formKey,
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Reason for Work from Home
-//                 TextFormField(
-//                   controller: _reasonController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Reason for Work from Home',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   validator: (value) {
-//                     if (value == null || value.isEmpty) {
-//                       return 'Please enter the reason';
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//                 const SizedBox(height: 16),
-
-//                 // Start Date for WFH
-//                 TextFormField(
-//                   controller: _startDateController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Start Date (e.g., 01-01-2024)',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   keyboardType: TextInputType.datetime,
-//                   validator: (value) {
-//                     if (value == null || value.isEmpty) {
-//                       return 'Please enter the start date';
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//                 const SizedBox(height: 16),
-
-//                 // End Date for WFH
-//                 TextFormField(
-//                   controller: _endDateController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'End Date (e.g., 01-02-2024)',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   keyboardType: TextInputType.datetime,
-//                   validator: (value) {
-//                     if (value == null || value.isEmpty) {
-//                       return 'Please enter the end date';
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//                 const SizedBox(height: 24),
-
-//                 // Submit button
-//                 ElevatedButton(
-//                   onPressed: _submitRequest,
-//                   child: const Text('Submit Request'),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-
-// class WorkFromHomePage extends StatefulWidget {
-//   const WorkFromHomePage({super.key});
-
-//   @override
-//   _WorkFromHomePageState createState() => _WorkFromHomePageState();
-// }
-
-// class _WorkFromHomePageState extends State<WorkFromHomePage> {
-//   final _formKey = GlobalKey<FormState>(); // Key to identify the form
-//   final _reasonController = TextEditingController(); // Controller for reason field
-//   final _startDateController = TextEditingController(); // Controller for start date field
-//   final _endDateController = TextEditingController(); // Controller for end date field
-
-//   // Function to submit the WFH request to Firestore
-//   Future<void> _submitRequest() async {
-//     if (_formKey.currentState!.validate()) {
-//       try {
-//         // Add WFH request to Firestore
-//         await FirebaseFirestore.instance.collection('workFromHomeRequests').add({
-//           'reason': _reasonController.text,
-//           'startDate': _startDateController.text,
-//           'endDate': _endDateController.text,
-//           'status': 'pending', // Initially, the request is pending
-//           'timestamp': FieldValue.serverTimestamp(),
-//         });
-
-//         // Show success message
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Work from Home request submitted successfully')),
-//         );
-
-//         // Clear the form after submission
-//         _reasonController.clear();
-//         _startDateController.clear();
-//         _endDateController.clear();
-//       } catch (e) {
-//         // Handle error
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Error submitting request')),
-//         );
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Work from Home Request"),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: SingleChildScrollView(  // Ensuring form is scrollable
-//           child: Form(
-//             key: _formKey,
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Reason for Work from Home
-//                 TextFormField(
-//                   controller: _reasonController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Reason for Work from Home',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   validator: (value) {
-//                     if (value == null || value.isEmpty) {
-//                       return 'Please enter the reason';
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//                 const SizedBox(height: 16),
-
-//                 // Start Date for WFH
-//                 TextFormField(
-//                   controller: _startDateController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Start Date (e.g., 01-01-2024)',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   keyboardType: TextInputType.datetime,
-//                   validator: (value) {
-//                     if (value == null || value.isEmpty) {
-//                       return 'Please enter the start date';
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//                 const SizedBox(height: 16),
-
-//                 // End Date for WFH
-//                 TextFormField(
-//                   controller: _endDateController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'End Date (e.g., 01-02-2024)',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                   keyboardType: TextInputType.datetime,
-//                   validator: (value) {
-//                     if (value == null || value.isEmpty) {
-//                       return 'Please enter the end date';
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//                 const SizedBox(height: 24),
-
-//                 // Submit button
-//                 ElevatedButton(
-//                   onPressed: _submitRequest,
-//                   child: const Text('Submit Request'),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -388,12 +168,11 @@ class WorkFromHomePage extends StatefulWidget {
 }
 
 class _WorkFromHomePageState extends State<WorkFromHomePage> {
-  final _formKey = GlobalKey<FormState>(); // Key to identify the form
-  final _reasonController = TextEditingController(); // Controller for reason field
-  final _startDateController = TextEditingController(); // Controller for start date field
-  final _endDateController = TextEditingController(); // Controller for end date field
+  final _formKey = GlobalKey<FormState>();
+  final _reasonController = TextEditingController();
+  final _startDateController = TextEditingController();
+  final _endDateController = TextEditingController();
 
-  // Function to show date picker and set the selected date
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -408,32 +187,53 @@ class _WorkFromHomePageState extends State<WorkFromHomePage> {
     }
   }
 
-  // Function to submit the WFH request to Firestore
   Future<void> _submitRequest() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Add WFH request to Firestore
-        await FirebaseFirestore.instance.collection('workFromHomeRequests').add({
-          'reason': _reasonController.text,
-          'startDate': _startDateController.text,
-          'endDate': _endDateController.text,
-          'status': 'pending', // Initially, the request is pending
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        User? user = FirebaseAuth.instance.currentUser;
+        String? email = user?.email;
 
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Work from Home request submitted successfully')),
-        );
+        if (email != null) {
+          // Query the 'users' collection to fetch the username and department of the logged-in user
+          QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .get();
 
-        // Clear the form after submission
-        _reasonController.clear();
-        _startDateController.clear();
-        _endDateController.clear();
+          if (userSnapshot.docs.isNotEmpty) {
+            DocumentSnapshot userDoc = userSnapshot.docs.first;
+            String username = userDoc['username'] ?? 'Unknown User';
+            String department = userDoc['department'] ?? 'Unknown Department'; // Fetch department
+
+            // Add the work from home request along with the department to Firestore
+            await FirebaseFirestore.instance.collection('workFromHomeRequests').add({
+              'email': email,
+              'username': username,
+              'department': department,  // Add department field
+              'reason': _reasonController.text,
+              'startDate': _startDateController.text,
+              'endDate': _endDateController.text,
+              'status': 'pending',
+              'timestamp': FieldValue.serverTimestamp(),
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Work from Home request submitted successfully')),
+            );
+
+            // Clear the input fields after submission
+            _reasonController.clear();
+            _startDateController.clear();
+            _endDateController.clear();
+          } else {
+            throw 'User document not found';
+          }
+        } else {
+          throw 'User not logged in';
+        }
       } catch (e) {
-        // Handle error
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error submitting request')),
+          SnackBar(content: Text('Error submitting request: $e')),
         );
       }
     }
@@ -447,13 +247,12 @@ class _WorkFromHomePageState extends State<WorkFromHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(  // Ensuring form is scrollable
+        child: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Reason for Work from Home
                 TextFormField(
                   controller: _reasonController,
                   decoration: const InputDecoration(
@@ -468,15 +267,13 @@ class _WorkFromHomePageState extends State<WorkFromHomePage> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Start Date for WFH
                 TextFormField(
                   controller: _startDateController,
                   decoration: const InputDecoration(
                     labelText: 'Start Date',
                     border: OutlineInputBorder(),
                   ),
-                  readOnly: true, // Prevents keyboard from appearing
+                  readOnly: true,
                   onTap: () {
                     _selectDate(context, _startDateController);
                   },
@@ -488,15 +285,13 @@ class _WorkFromHomePageState extends State<WorkFromHomePage> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // End Date for WFH
                 TextFormField(
                   controller: _endDateController,
                   decoration: const InputDecoration(
                     labelText: 'End Date',
                     border: OutlineInputBorder(),
                   ),
-                  readOnly: true, // Prevents keyboard from appearing
+                  readOnly: true,
                   onTap: () {
                     _selectDate(context, _endDateController);
                   },
@@ -508,8 +303,6 @@ class _WorkFromHomePageState extends State<WorkFromHomePage> {
                   },
                 ),
                 const SizedBox(height: 24),
-
-                // Submit button
                 ElevatedButton(
                   onPressed: _submitRequest,
                   child: const Text('Submit Request'),
@@ -522,3 +315,4 @@ class _WorkFromHomePageState extends State<WorkFromHomePage> {
     );
   }
 }
+
