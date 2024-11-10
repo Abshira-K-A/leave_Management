@@ -39,7 +39,7 @@ class ApprovedLeavePage extends StatelessWidget {
           return StreamBuilder(
             stream: FirebaseFirestore.instance
                 .collection('leaveApplications')
-                .where('status', isEqualTo: 'approved')
+                .where('managerStatus', isEqualTo: 'approved')
                 .where('department', isEqualTo: managerDepartment)
                 .snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
