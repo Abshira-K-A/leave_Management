@@ -1,11 +1,11 @@
+
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/material.dart';
 // import 'hrLeave_request.dart';
-// import 'leave_applicationdetails.dart';
 // import 'login.dart';
-// import 'employee_Details.dart';
 // import 'profile_.dart';
+// import 'hrEmployeeDetails.dart';
 
 // class HR extends StatefulWidget {
 //   const HR({super.key});
@@ -67,18 +67,25 @@
 //                   onTap: () {
 //                     Navigator.push(
 //                       context,
-//                       MaterialPageRoute(builder: (context) => const EmployeeDetailsPage()),
+//                       MaterialPageRoute(builder: (context) => const HREmployeeDetailsPage()),
 //                     );
 //                   },
 //                 );
 //               },
 //             ),
 //             StreamBuilder(
-//               stream: FirebaseFirestore.instance.collection('leaveApplications').snapshots(),
+//               stream: FirebaseFirestore.instance
+//                   .collection('leaveApplications')
+//                   .where('managerStatus', isEqualTo: 'approved')  // Filter by approved manager status
+//                   .snapshots(),
 //               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
 //                 if (snapshot.connectionState == ConnectionState.waiting) {
 //                   return const Center(child: CircularProgressIndicator());
 //                 }
+//                 if (snapshot.hasError) {
+//                   return const Center(child: Text("Error loading data"));
+//                 }
+
 //                 int leaveRequestCount = snapshot.data?.docs.length ?? 0;
 //                 return DashboardCard(
 //                   icon: Icons.pending_actions,
@@ -87,7 +94,7 @@
 //                   onTap: () {
 //                     Navigator.push(
 //                       context,
-//                       MaterialPageRoute(builder: (context) =>const HrLeaveRequestPage()),
+//                       MaterialPageRoute(builder: (context) => const HrLeaveRequestPage()),
 //                     );
 //                   },
 //                 );
@@ -103,8 +110,6 @@
 //     await FirebaseAuth.instance.signOut();
 //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
 //   }
-  
-//   HrLeaveRequestsPage() {}
 // }
 
 // class DashboardCard extends StatelessWidget {
@@ -256,9 +261,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'hrLeave_request.dart';
-import 'leave_applicationdetails.dart';
+import 'hrManagerLeaveRequests.dart';
 import 'login.dart';
-import 'employee_Details.dart';
 import 'profile_.dart';
 import 'hrEmployeeDetails.dart';
 
@@ -344,7 +348,7 @@ class _HRState extends State<HR> {
                 int leaveRequestCount = snapshot.data?.docs.length ?? 0;
                 return DashboardCard(
                   icon: Icons.pending_actions,
-                  title: "Leave",
+                  title: "Employee Leave",
                   count: leaveRequestCount,
                   onTap: () {
                     Navigator.push(
@@ -355,6 +359,37 @@ class _HRState extends State<HR> {
                 );
               },
             ),
+            StreamBuilder(
+  stream: FirebaseFirestore.instance
+      .collection('managerLeaveApplications')
+      .where('hrStatus', isEqualTo: 'Pending')  // Filter by pending status
+      .snapshots(),
+  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (snapshot.hasError) {
+      return const Center(child: Text("Error loading data"));
+    }
+
+    // Get the number of pending leave requests
+    int managerLeaveRequestCount = snapshot.data?.docs.length ?? 0;
+
+    return DashboardCard(
+      icon: Icons.assignment,
+      title: "Manager Leave",
+      count: managerLeaveRequestCount,
+      onTap: () {
+        // Navigate to HRManagerLeaveRequests page when tapped
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HRManagerLeaveRequests()),
+        );
+      },
+    );
+  },
+),
+
           ],
         ),
       ),
@@ -395,13 +430,13 @@ class DashboardCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 40, color: Colors.blue),
+              Icon(icon, size: 30, color: Colors.blue),
               const SizedBox(height: 10),
               Text(
                 title,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               Text(
                 '$count',
                 style: const TextStyle(fontSize: 24, color: Colors.black, fontWeight: FontWeight.bold),
@@ -414,15 +449,15 @@ class DashboardCard extends StatelessWidget {
   }
 }
 
-class LeaveRequestPagehr extends StatelessWidget {
+class ManagerLeaveRequestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Leave Requests"),
+        title: const Text("Manager Leave Requests"),
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('leaveApplications').snapshots(),
+        stream: FirebaseFirestore.instance.collection('managerLeaveApplications').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -431,7 +466,7 @@ class LeaveRequestPagehr extends StatelessWidget {
             return const Center(child: Text("Error loading leave requests"));
           }
           if (snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("No leave requests available."));
+            return const Center(child: Text("No manager leave requests available."));
           }
 
           final leaveRequests = snapshot.data!.docs;
@@ -456,7 +491,7 @@ class LeaveRequestPagehr extends StatelessWidget {
                         icon: const Icon(Icons.check, color: Colors.green),
                         onPressed: () async {
                           await FirebaseFirestore.instance
-                              .collection('leaveApplications')
+                              .collection('managerLeaveApplications')
                               .doc(request.id)
                               .update({'status': 'approved'});
                         },
@@ -465,7 +500,7 @@ class LeaveRequestPagehr extends StatelessWidget {
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () async {
                           await FirebaseFirestore.instance
-                              .collection('leaveApplications')
+                              .collection('managerLeaveApplications')
                               .doc(request.id)
                               .update({'status': 'rejected'});
                         },
@@ -512,3 +547,4 @@ class ReportsPage extends StatelessWidget {
     );
   }
 }
+
