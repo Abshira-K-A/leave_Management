@@ -1,31 +1,3 @@
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text("Leave Application")),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: SingleChildScrollView(
-//           child: Form(
-//             key: _formKey,
-//             child: Column(
-//               children: [
-//                 // Leave Type Dropdown
-//                 DropdownButtonFormField<String>(
-//                child: const Text('OK'),
-//               ),
-//             ],
-//           );
-//         },
-//       );
-//     } catch (e) {
-//       print("Error submitting leave application: $e");
-//       // Show error message to user
-//     }
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // For Firebase Auth
